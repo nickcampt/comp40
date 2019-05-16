@@ -1,0 +1,29 @@
+Nick Camp and Ethan Sorkin
+Comp40, HW2 , iii
+Sunday Feb 12th
+README
+
+1. Not a lot of external help.
+
+2. What has been implemented:
+A:  Two-Dimensional, Polymorphic, Unboxed Arrays
+        Everything is implemented correctly according to the spec.
+        We created a 2D representation using a single UArray_T.
+        All memory is freed.
+B: Two-Dimensional Arrays of Bits
+        Everything in implemented correctly according to the spec.
+        We created a 2D representation using a single Hanson Bit Vector.
+        All memory is freed.
+C: Using the UArray2 Abstraction to identify Sudoku Solutions
+        Everything is implemented correctly.
+        We have 3 check functions to make sure the sudoku board is valid.
+        All memory is freed.
+D: Using Bit2 Abstraction to Remove Black Edges
+        Everything is implemented correctly.
+        We have a semi-recursive function to convert all black-edge pixels.
+        All memory is freed.
+E: Programming Technique
+        Our technique is about keeping track of memory allocation and freeing
+        memory right as we allocate and checking valgrind often.
+
+3. Approximate Time Spent: 17 hours
