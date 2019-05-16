@@ -1,0 +1,72 @@
+# Nick Camp and David Knopov
+# Calc40 - an RPN calculator
+# Comp40 Spring 2018
+# a simple RPN calculator using a stack and a jump table
+
+
+# printd is used for printing all the digits in a number
+# this means that every value in the calculator stack is printed individually
+
+.temps r6,r7
+r0 := 0
+
+
+# r1 initially holds the value we are printing
+# r2 is stack pointer globally
+.section text
+
+# handles edge cases, calls print_not_max to handle non edge cases
+# r3 tracks the number of digits in a number
+printd:
+output ">>> "
+push r1 on stack r2
+r1 := r5
+r3 := 0
+r4 := 0
+r5 := r1 & 2147483647
+if ( r5 != 0 ) goto print_not_max
+if ( r1 == 0) goto zero
+output "-2147483648"
+goto done
+
+zero:
+output "0"
+goto done
+
+# normal print function for non edge case scenarios
+print_not_max:
+# check to see if negative
+r5 := r1 & 2147483648
+if ( r5 == 0 ) goto push_stack
+# 2's complement used to output negative values
+output '-'
+r1 := ~r1
+r1 := r1 + 1
+goto push_stack
+
+# breaks multi digit numbers into their single digit parts for outputting
+# r4 holds the multi digit number as it is created
+push_stack:
+r5 := r1 / 10
+r4 := r5 * 10
+r4 := r1 - r4
+r4 := r4 + 48
+push r4 on stack r2
+r3 := r3 + 1
+if ( r5 == 0) goto print
+r1 := r5
+goto push_stack
+
+# r3 is the stack counter
+# outputs a single digit while stack is not empty
+print:
+if ( r3 == 0) goto done
+pop r1 off stack r2
+output r1
+r3 := r3 - 1
+goto print
+
+# goes back to where printd was called from
+done:
+pop r1 off stack r2
+goto r1

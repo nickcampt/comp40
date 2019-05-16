@@ -1,0 +1,25 @@
+1. Identifies you and your programming partner by name:
+David Knopov and Nick Camp
+
+2. Acknowledges help you may have received:
+The Ta's during office hours helped us figure out how to compile and test
+printd
+
+3. Identifies what has been correctly implemented and what has not:
+Everything is correctly implemented
+
+4. Explains any departures from the recommended calling convention
+There were no major departures from the recommended calling convention
+
+5. Explains in one sentence how you chose to implement the print module
+We chose to implement the print module with recursion, by pushing every digit
+to the stack one by one, and then popping the digits off and outputting them.
+
+6. Says approximately how many hours you have spent analyzing the assignment
+We spent 3 hours analyzing the assignment
+
+7. Says approximately how many hours you have spent writing assembly code
+We spent about 10 hours writing assembly code
+
+8. Says approximately how many hours you have spent debugging your calculator
+We spent around 4 hours debugging our calculator

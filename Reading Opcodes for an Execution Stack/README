@@ -1,0 +1,73 @@
+.*******************************************
+* Alphonsus Adu-Bredu && Nick Camp
+*
+*
+*******************************************/
+
+Help received: NONE
+
+Assembly Code Analysis
+----------------------
+
+The most time-consuming routine was the opcode interpretation and execution
+method. The majority of this routine was the switch operation we employed to
+call the right functions based on the op-code of the instruction.
+It occupied  61.58% our entire program life. This makes sense as
+the fetch, decode, execute cycle is the heart of our UM, and this is what our
+switch module emulates.
+
+CAN IT BE MADE FASTER:
+
+On analyzing the Assembly code for the switch routine, we noticed
+the following;
+
+1. The assembly code for the math operations, add, multiplication, division
+   and nand were identical. All they did were to load the parameters from
+   the stack into the registers edx, esi, edi(which were our integer
+   variables a, b, c) and finally our register array
+   into register rcx. The math operation function was then called and the
+   registers are passed into them as parameters. Since it is concise
+   and straightforward, we couldn't think of any obvious way to improve
+   this piece of assembly code.
+
+
+2. The assembly code for Case 7 of our switch statement, which was supposed
+   to implement the halt instruction was quite simple. It simply moved
+   0x0 (false) into our run boolean variable. There is no simpler way to
+   implement that piece of assembly code.
+
+
+3. The assembly code for map, read, write and unmap in our switch routine was
+    quite similar to that of the math operations. It simply copied the
+    parameters from the stack into the function parameter registers and called
+    the function. We couldn't think of any simpler way to do this.
+
+
+4. The assembly code for load program in our switch routine was quite
+   similar to the others. First, the parameters were copied to temporary
+   registers and then copied from them to the parameter registers
+   and the load program function is called.
+
+
+5. There weren't many opportunities for improvement in the assembly code
+   for the switch routine, as they were quite straightforward and necessary.
+   The only improvement we could think of was that for each of the cases of
+   our switch routine, instead of copying the parameters from the
+   stack into temporary registers and then copying the parameters from
+   temporary registers to the function parameter registers, it could
+   simply copy the parameters from the stack directly into the
+   function parameter registers and then straightaway call the function.
+   This would have saved at least 2 lines of instructions in each case.
+   This is meaningful, as every instruction goes through this switch routine,
+   and so we would see significant improvements for longer programs.
+   We however conceded that there is probably a good reason why the
+   assembler uses the temporary registers.
+
+
+
+
+ Hours spent analyzing the problems: 2 hours
+ ----------------------------------
+
+ Hours spent solving the problems: 4 hours
+ ---------------------------------

@@ -1,0 +1,125 @@
+README
+
+1. NAMES
+        Nick Camp and Alphonsus Adu-Bredu
+
+2. HELP
+        NONE
+
+3. WHAT HAS BEEN CORRECTLY IMPLEMENTED
+        We have correctly implemented all aspects of the UM
+
+4. Any Significant departures from our design?
+        We pass way fewer things around in our functions than we
+        thought we were going to do, and made a bunch of functions inline.
+
+5. Architecture
+
+        The main part of the program is the execution module, and this is
+        supported by 3 interfaces: IO.c, Calculations.c and Segment.c.
+
+        Execution.c does the instruction interpretation and calls the
+        corresponding functions, utilizing the other interfaces. The client
+        only knows of run_machine(), but the rest of the execution module
+        has many helper functions for the fetch-decode-execute cycle.
+
+        Segment.c handles the segmented memory interpretation, and only it
+        knows about the data representation. The client does not know that
+        we use a multi-array structure to represent our memory and keep track
+        of segments, as it is a secret of segment.c
+
+        IO.c does the reading and writing to standard output,
+        and has no secrets to keep, but importantly also knows no secrets.
+
+        Calculation.c knows no secrets either, and has nothing to share with
+        the rest of the implementation. It provides simple inline functions.
+
+
+6. How long it takes for your UM to execute 50 million instructions?
+   How you know?
+   It takes our UM 9.228 seconds. We know this because we wrote our test file
+   50mil.um to have 50 million instructions. We had a loop do 10 million
+   iterations and in those iterations there were 5 instructions.
+   Thus we reached 50 million instructions without having to write 50 million
+   lines. We also had a 50 million instruction SLOW file, which does way more
+   with memory. This one was not submitted as it overflowed our disk quota
+   on Github. Instead, we have a SLOW test that has 10 million instructions.
+
+7. Each UM Test, What they do, and How do they do it?
+        halt.um
+                This test only calls halt and so nothing should happen.
+                Every test needs a halt so we got this going first.
+        halt-verbose.um
+                This test loads some values, outputs them, and then halts.
+                Every test needs a halt so this was our first real test.
+        add.um
+                This tests the add function, and then ends with a halt.
+        print.um
+                This test was sort of already done with the halt-verbose, but
+                now our own values are loaded, added, and then written out.
+        mul.um
+                This test loads two values into registers and multiplies them
+                together, then outputs the result. This checks to make sure
+                that our multiplication instruction worked correctly.
+        div.um
+                This test checked our division instruction using loaded values
+        nand.um
+                This test chekced our nand instruction using loaded values
+        divzero.um
+                This test checked to see what would happen if you tried to
+                divide by zero. The machine should definitely not continue.
+        map.um
+                This tested our map function. It is hard to tell when this
+                works correctly, so it was important to test the same lines
+                with our unmap function.
+        umap.um
+                This tested our unmap function, and also confirmed that our
+                map function was working, as if it did not map correctly, then
+                most likely it should not be able to unmap correctly either.
+        segstore.um
+                Seg store test mapped a segment, then stored some data in
+                that segment. This is also better tested using its sister
+                segload function, as segload should not work if the item is
+                not stored correctly.
+        segload.um
+                Segload loads a register from a segment, and the thing it
+                loads is put there using segstore. Therefore, both are tested
+                together, and a predited output is used to check correctness.
+        cmov.um
+                cmov tests our conditional move instruction. It does so by
+                having a case where something should be moved, and a case
+                where something should NOT be moved. It outputs twice, once
+                for each time there is a cmove instruction so we can make
+                sure the rules are being followed correctly.
+        loadp.um
+                loadp tests the load program instruction by "jumping" over
+                an instruction. If the instruction works correctly, then
+                the test should only output the number 1, as it should
+                skip over the line that asks to output the number 0.
+        50mil.um
+                50mil makes 50 million instructions to test on. The
+                instructions are very simple, as it is just some addition
+                and some division. After all these instructions are completed
+                it just outputs the letter A, so that you know you are done.
+        50milSlow.um
+                This test was too big to submit. It took a very long time to
+                run even with a good implementation, so I can only imagine
+                how it would have destroyed poor implementations. It mapped and
+                unmapped over and over from different registers for
+                50 million instructions.
+        input.um
+                This test simply tests input, and outputs exactly what was
+                put into the register.
+        inputBad.um
+                This test is the same as input.um, but does not return exactly
+                what was inputted. This shows off that the UM only supports
+                inputs from 0-255.
+
+8. Hours Spent Analyzing
+        5 Hours
+
+9. Hours spent Preparing
+        5 Hours
+
+10. Hours spent solving problems
+        20 Hours

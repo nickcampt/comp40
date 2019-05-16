@@ -1,0 +1,15 @@
+# Nick Camp and David Knopov
+# Calc40 - an RPN calculator
+# Comp40 Spring 2018
+# a simple RPN calculator using a stack and a jump table 
+
+
+# stack.ums allocates space for a stack, and then has r2 point to it
+# r2 always holds the stack pointer throughout our calc40 program
+
+.zero r0
+.section stk
+.space 100000
+endstack:
+.section init
+r2 := endstack

@@ -1,0 +1,10 @@
+Stack underflow---expected at least 2 element
+Stack underflow---expected at least 1 element
+Stack underflow---expected at least 1 element
+>>> 0
+>>> 0
+>>> 1
+>>> 0
+>>> -767
+>>> -672
+>>> -672

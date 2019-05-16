@@ -1,0 +1,336 @@
+# Nick Camp and David Knopov
+# Calc40 - an RPN calculator
+# Comp40 Spring 2018
+# a simple RPN calculator using a stack and a jump table
+
+# calc40.ums performs the calculator operations, utilizing stack.ums and
+# printd.ums. calc40.ums lasts indefinitely once called by callmain.ums
+
+
+.temp r6, r7
+.zero r0
+.section init
+r0:= 0
+r4:= 255
+goto pre_fill_table
+
+
+.section init
+table_initiation:
+push r1 on stack r2
+push r3 on stack r2
+push r4 on stack r2
+goto fill_table
+
+
+# r2 holds the stack pointer
+# r3 holds the size of the stack
+# r4 hold the current state, but only during state checks
+# r4 does not hold the state variable during calculation functions
+
+# r4 and r1 hold values while they are popped off the stack
+
+# create an empty jumptable
+.section rodata
+jumptable:
+.space 256
+
+# fill "unused" jump table slots with error message
+pre_fill_table:
+r5 := jumptable + r4
+m[r0][r5] := INPUT_ERROR
+if ( r4 == 0 ) goto fill_table
+r4 := r4 - 1
+goto pre_fill_table
+
+# what to print for an error message in unused jump table spots
+INPUT_ERROR:
+output "Unknown character '"
+output r1
+output "'\n"
+goto waiting
+
+fill_table:
+m[r0][jumptable + '0'] := digit
+m[r0][jumptable + '1'] := digit
+m[r0][jumptable + '2'] := digit
+m[r0][jumptable + '3'] := digit
+m[r0][jumptable + '4'] := digit
+m[r0][jumptable + '5'] := digit
+m[r0][jumptable + '6'] := digit
+m[r0][jumptable + '7'] := digit
+m[r0][jumptable + '8'] := digit
+m[r0][jumptable + '9'] := digit
+m[r0][jumptable + ' '] := waiting
+m[r0][jumptable + '\n'] := call_print
+m[r0][jumptable + '+'] := add
+m[r0][jumptable + '-'] := sub
+m[r0][jumptable + '*'] := mult
+m[r0][jumptable + '/'] := div
+m[r0][jumptable + '|'] := or
+m[r0][jumptable + '&'] := and
+m[r0][jumptable + 'c'] := sign
+m[r0][jumptable + '~'] := comp
+m[r0][jumptable + 's'] := swap
+m[r0][jumptable + 'd'] := dup
+m[r0][jumptable + 'p'] := popv
+m[r0][jumptable + 'z'] := clear
+
+.section text
+
+main:
+goto waiting linking r1
+goto finish
+
+# reset the state every time we go to waiting
+waiting:
+r4 := 0
+goto waiting_char
+
+# waiting_char is where we get input to process
+# depending on input we go to necessary place in jumptable
+waiting_char:
+r1 := input()
+if ( r1 == -1 ) goto finish using r5
+r5 := jumptable + r1
+r5 := m[r0][r5]
+goto r5
+
+finish:
+halt
+
+# pushes or adds based on the state register r4
+digit:
+if (r4 == 0) goto push_dig
+goto add_dig
+
+# adds a non ascii to the calc stack
+push_dig:
+r5 := r1 - 48
+push r5 on stack r2
+goto entering
+
+# add_dig is used for creating multi-digit numbers
+# here we manipulate numbers to add digits to the right of current digits
+add_dig:
+r1 := r1 - 48
+pop r5 off stack r2
+r5 := r5 * 10
+r5 := r5 + r1
+push r5 on stack r2
+goto entering
+
+# update the state register with the entering value
+entering:
+r4 := 1
+goto waiting_char
+
+# r4 and r1 hold the stack values while they are popped off
+add:
+goto two_args linking r1
+pop r4 off stack r2
+pop r1 off stack r2
+r5 := r1 + r4
+push r5 on stack r2
+goto waiting
+
+# remove element from the stack
+popv:
+goto one_arg linking r1
+pop r4 off stack r2
+goto waiting
+
+# r4 and r1 hold the stack values while they are popped off
+
+sub:
+goto two_args linking r1
+pop r4 off stack r2
+pop r1 off stack r2
+r5 := r1 - r4
+push r5 on stack r2
+goto waiting
+
+# r4 and r1 hold the stack values while they are popped off
+mult:
+goto two_args linking r1
+pop r4 off stack r2
+pop r1 off stack r2
+r5 := r4 * r1
+push r5 on stack r2
+goto waiting
+
+# checks if denominator is zero
+div:
+goto two_args linking r1
+pop r4 off stack r2
+if ( r4 == 0 ) goto div_error
+r3 := 1
+push r3 on stack r2
+goto check_first
+
+# r4 receives quotient
+# r5 holds numerator
+# r4 holds denominator
+# r3 holds sign of quotient
+find_quotient:
+pop r3 off stack r2
+r4 := r5 / r4
+r4 := r4 * r3
+push r4 on stack r2
+goto waiting
+
+# check value and sign of numerator
+check_first:
+r3 := r4 & 2147483648
+# goto if numerator is positive
+if ( r3 == 0 ) goto check_posdiv
+# if numerator is negative
+r4 := r4 * -1
+pop r3 off stack r2
+# sign is set to negative
+r3 := r3 * -1
+push r3 on stack r2
+goto check_posdiv
+
+# helper function for positive numerator
+check_posdiv:
+# take out sign
+pop r3 off stack r2
+# get second argument
+pop r5 off stack r2
+# put back sign
+push r3 on stack r2
+r3 := r5 & 2147483648
+# goto if denominator is positive
+if (r3 == 0) goto find_quotient
+# if denominator is negative
+r5 := r5 * -1
+# get sign back in r3
+pop r3 off stack r2
+# put original value of r4 to stack so we can us r4
+push r4 on stack r2
+# check to see if r4 was positive , if pos then quotient is negative
+r4 := r3 & 2147483648
+if (r4 != 0) r3 := 1
+if (r4 == 0) r3 := -1
+pop r4 off stack r2
+push r3 on stack r2
+goto find_quotient
+
+
+div_error:
+push r4 on stack r2
+output "Division by zero\n"
+goto waiting
+
+# r4 gets stack pointer
+call_print:
+r4 := r2
+goto print_two
+
+# r5 tells us if we have printed everything
+# r4 holds where we are in the stack
+# prints every number in the calculator stack
+print_two:
+r5 := endstack - r4
+if ( r5 == 0 ) goto waiting
+push r4 on stack r2
+r5 := m[r0][r4]
+goto printd linking r1
+output '\n'
+pop r4 off stack r2
+r4 := r4 + 1
+goto print_two
+
+# r4 and r1 hold the stack values while they are popped off
+or:
+goto two_args linking r1
+pop r4 off stack r2
+pop r1 off stack r2
+r4 := r4 | r1
+push r4 on stack r2
+goto waiting
+
+# r4 and r1 hold the stack values while they are popped off
+and:
+goto two_args linking r1
+pop r4 off stack r2
+pop r1 off stack r2
+r4 := r4 & r1
+push r4 on stack r2
+goto waiting
+
+# two's complement used for switching sign of values
+sign:
+goto one_arg linking r1
+pop r1 off stack r2
+r1 := ~r1
+r1 := r1 + 1
+push r1 on stack r2
+goto waiting
+
+# complement function holding the value in r1
+comp:
+goto one_arg linking r1
+pop r1 off stack r2
+r1 := ~r1
+push r1 on stack r2
+goto waiting
+
+# r4 and r1 hold the values to be swapped
+swap:
+goto two_args linking r1
+pop r4 off stack r2
+pop r1 off stack r2
+push r4 on stack r2
+push r1 on stack r2
+goto waiting
+
+# pops 1st argument from stack and copies it then pushes two identical
+# values onto stack
+dup:
+goto one_arg linking r1
+pop r4 off stack r2
+r5 := r4
+push r4 on stack r2
+push r5 on stack r2
+goto waiting
+
+# clear whole stack by calling clear_two
+clear:
+r4 := r2
+goto clear_two
+
+# clears stack
+clear_two:
+r5 := endstack - r4
+if ( r5 == 0 ) goto waiting
+pop stack r2
+r4 := r4 + 1
+goto clear_two
+
+# takes r1, which holds the location to return back to
+# returns nothing
+# outputs an error message if there is an unexpected number of elements
+one_arg:
+r5 := endstack - r2
+if ( r5 != 0) goto r1
+goto stack_under_one
+
+stack_under_one:
+output "Stack underflow---expected at least 1 element\n"
+goto waiting
+
+# takes r1, which holds the location to return back to
+# returns nothing
+# outputs an error message if there is an unexpected number of elements
+two_args:
+r5 := endstack - r2
+if ( r5 == 0) goto stack_under_two
+r5 := r5 - 1
+if ( r5 == 0) goto stack_under_two
+goto r1
+
+stack_under_two:
+output "Stack underflow---expected at least 2 elements\n"
+goto waiting

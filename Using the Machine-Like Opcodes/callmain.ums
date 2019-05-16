@@ -1,0 +1,11 @@
+# Nick Camp and David Knopov
+# Calc40 - an RPN calculator
+# Comp40 Spring 2018
+# a simple RPN calculator using a stack and a jump table
+
+# callmain.ums begins the calc40 program.
+
+.zero r0
+.temps r7,r6
+.section init
+goto main
