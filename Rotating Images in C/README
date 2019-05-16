@@ -1,0 +1,189 @@
+1) Nick Camp and Ethan Sorkin
+Comp 40
+Homework 3 Locality
+README
+
+2) Help from what must have been almost all of the TA's, big thanks to them as 
+this project was rough at a couple of points.
+
+3) Everything has been correctly implemented. We also wrote a 270 degree 
+rotation, along with a vertical and horizontal flip for extra credit. 
+
+4) Architecture: 
+
+ppmtrans
+        --> uses A2Methods
+                --> uses UArray2 or UArray2b
+        Other various libraries and algorithms are used throughout, such as the 
+        provided timing code and the pnm.h provided to us. 
+                
+ppmtrans.c has 4 important components.
+1. Code for timing
+2. Command Line parsing (provided)
+3. The pnm read/write 
+4. The A2Methods suite
+
+Implementations for 1, 2, and 3 were given to us by you guys. We use the 
+provided timing code to start and stop a timer before and after a rotation. The
+command line parsing indicates which functions will be called, along with which
+representation will be used (UArray2 or UArray2b). The pnm read/write functions
+allow us to easily read in a provided ppm image and print our transformed image
+to standard output.
+        
+The A2Methods suite allows for the polymorphic usage of our mappping functions 
+enjoyed in ppmtrans. This is made possible through our a2plain implementation
+along with the provided a2blocked implementation. Essentially, A2Methods 
+functions suite prepares correct parameters to pass into the corresponding 
+UArray functions, then calls functions with those parameters. This allows us
+to manipulate our representation without implicitly calling functions in
+UArray2 and UArray2b.
+
+UArray2 and UArray2b are instrumental in the implementation of ppmtrans. The
+architecture for UArray2 is given to us by you guys. UArray2b utilizes blocking
+of data to better take advantage of caching and locality. Data is stored in 
+blocks, and is mapped in row-major order within those blocks. Blocks are also
+mapped in row-major order. Utilizing blocks may create extra / unneeded space
+in the bottom and rightmost rows, so we made sure to never access these useless
+cells during our mapping and accessing functions. Similar to our implementation
+of UArray2 in the previous homework, we store the cells of our UArray2b in a
+single UArray. Our indexing function uses an equation we wrote that finds the
+index in our single UArray that corresponds to a row / column pair in the 2D
+array. The useless cells described above create gaps throughout of single 
+UArray.
+
+5) Measured performance for part E and explanation of our results.
+
+IMAGE 1: mobo.ppm
+SIZE: 49939200 pixels
+NAME: Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz
+MODEL: 94
+CPU TYPE: Intel
+CLOCK RATE: 957.710 MHz
+
+        Test 1: 0 degrees, row-major
+                Total time: 567.000000 nanoseconds
+                Time per pixel = 0.000011 nanoseconds
+        
+        Test 2: 0 degrees, col-major
+                Total time: 1008.000000 nanoseconds
+                Time per pixel = 0.000020 nanoseconds
+        
+        Test 3: 0 degrees, block-major
+                Total time: 532.000000 nanoseconds
+                Time per pixel = 0.000011 nanoseconds
+                
+        Test 4: 90 degrees, row-major
+                Total time: 1855116398.000000 nanoseconds
+                Time per pixel = 37.147499 nanoseconds
+                
+        Test 5: 90 degrees, col-major
+                Total time: 2315776848.000000 nanoseconds
+                Time per pixel = 46.371925 nanoseconds
+        
+        Test 6: 90 degrees, block-major
+                Total time: 2757955344.000000 nanoseconds
+                Time per pixel = 55.226262 nanoseconds
+                
+        Test 7: 180 degrees, row-major
+                Total time: 1528901232.000000 nanoseconds
+                Time per pixel = 30.615253 nanoseconds
+                
+        Test 8: 180 degrees, col-major
+                Total time: 3240751442.000000 nanoseconds
+                Time per pixel = 64.893940 nanoseconds
+                
+        Test 9: 180 degrees, block-major
+                Total time: 2776816184.000000 nanoseconds
+                Time per pixel = 55.603938 nanoseconds
+                
+        Test 10: 270 degrees, row-major
+                Total time: 1867586291.000000 nanoseconds
+                Time per pixel = 37.397201 nanoseconds
+                
+        Test 11: 270 degrees, col-major
+                Total time: 2364970294.000000 nanoseconds
+                Time per pixel = 47.356992 nanoseconds
+                
+        Test 12: 270 degrees, block-major
+                Total time: 2740641442.000000 nanoseconds
+                Time per pixel = 54.879562 nanoseconds
+
+
+IMAGE 2: nrs_big.ppm
+SIZE: 69619200 pixels
+NAME: Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz
+MODEL: 94
+CPU TYPE: Intel
+CLOCK RATE: 957.710 MHz
+
+        Test 1: 0 degrees, row-major
+                Total time: 532.000000 nanoseconds
+                Time per pixel = 0.000008 nanoseconds
+        
+        Test 2: 0 degrees, col-major
+                Total time: 610.000000 nanoseconds
+                Time per pixel = 0.000009 nanoseconds
+        
+        Test 3: 0 degrees, block-major
+                Total time: 706.000000 nanoseconds
+                Time per pixel = 0.000010 nanoseconds
+                
+        Test 4: 90 degrees, row-major
+                Total time: 2609027678.000000 nanoseconds
+                Time per pixel = 37.475692 nanoseconds
+                
+        Test 5: 90 degrees, col-major
+                Total time: 3173599224.000000 nanoseconds
+                Time per pixel = 45.585115 nanoseconds
+        
+        Test 6: 90 degrees, block-major
+                Total time: 3749101199.000000 nanoseconds
+                Time per pixel = 53.851541 nanoseconds
+                
+        Test 7: 180 degrees, row-major
+                Total time: 2128461917.000000 nanoseconds
+                Time per pixel = 30.572915 nanoseconds
+                
+        Test 8: 180 degrees, col-major
+                Total time: 5437322158.000000 nanoseconds
+                Time per pixel = 78.100900 nanoseconds
+                
+        Test 9: 180 degrees, block-major
+                Total time: 3832074020.000000 nanoseconds
+                Time per pixel = 55.043350 nanoseconds
+                
+        Test 10: 270 degrees, row-major
+                Total time: 2675325336.000000 nanoseconds
+                Time per pixel = 38.427982 nanoseconds
+                
+        Test 11: 270 degrees, col-major
+                Total time: 3197896177.000000 nanoseconds
+                Time per pixel = 45.934113 nanoseconds
+                
+        Test 12: 270 degrees, block-major
+                Total time: 3643064380.000000 nanoseconds
+                Time per pixel = 52.328444 nanoseconds
+                
+
+For all tests above, the number of instructions per pixel is essentially 
+equivalent to the recorded time per pixel in nanoseconds. This is due to the 
+assumption that computers execute approximately 1,000,000,000 instructions per 
+second, which is the same as saying that computers execute 1 instruction per
+nanosecond, since there are 1 billion nanoseconds in one second.
+
+We observed that row-major mapping runs the fastest for all rotations. The
+next fastest run time is with column-major mapping for 90 and 270 degree
+rotations. After that, was all block-major rotations, and the slowest rotation
+was 180 degrees with column-major mapping. 
+
+We also noticed that the number of instructions per pixel did not significantly
+change with different sized images. This is because each individual rotation
+takes the same amount of time, and is dependent on the computer speed, rather
+than image size. Althought the total run time is obviously bigger for large
+images, the time per pixel represents the computer's speed for a single
+pixel, so should not change for different images tested on the same computer.
+
+
+6) Approximate hours spent: 30 hours
+
+
